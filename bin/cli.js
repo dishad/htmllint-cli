@@ -37,7 +37,37 @@ var argv = require('yargs')
         .help('help')
         .argv;
 
-var args = argv._;
+var args = argv._,
+    allFilesArr = getAllFiles(args);
+
+function getAllFiles(arrTargets){
+    var arrAllFiles = [];
+    if(arrTargets.length > 0){
+        for(var i=0,l=arrTargets.length;i<l;i++){
+            getFiles(arrTargets[i], arrAllFiles);
+        }
+    }
+    else{
+        getFiles(process.cwd(), arrAllFiles);
+    }
+    return arrAllFiles;
+}
+
+function getFiles(filepath, arrFiles){
+    if(fs.existsSync(filepath) === false){
+        return;
+    }
+    filepath = path.resolve(process.cwd(), filepath);
+    var stat = fs.statSync(filepath);
+    if(stat.isFile() && /\.html?$/i.test(filepath)){
+        arrFiles.push(filepath);
+    }
+    else if(stat.isDirectory()){
+        fs.readdirSync(filepath).forEach(function(filename){
+            getFiles(filepath + '/' + filename, arrFiles);
+        });
+    }
+}
 
 app.launch({
     cwd: argv.cwd,
@@ -104,9 +134,7 @@ app.launch({
     }
 
     function lintFile(filename) {
-        var filepath = path.join(cwd, filename);
-
-        return readFilePromise(filepath, 'utf8')
+        return readFilePromise(filename, 'utf8')
             .then(function (src) {
                 return htmllint(src, cfg);
             })
@@ -121,24 +149,22 @@ app.launch({
 
                     console.log(msg);
                 });
-
                 return { errorCount: issues.length };
             })
             .catch(function (err) {
                 // MC: muahahahahah :D
                 throw ('[htmllint error in ' + filename + ' ] ' + err);
             });
-    }
+    };
 
     Promise.all(
         args.map(function (pattern) {
             return globPromise(pattern, { cwd: cwd });
         })
-    ).then(function (filesArr) {
-        var files = Array.prototype.concat.apply([], filesArr);
-
+    ).then(function () {
+      
         return Promise.settle(
-            files.map(lintFile)
+            allFilesArr.map(lintFile)
         );
     }, function (err) {
         console.error(chalk.red.bold('error during glob expansion:'), err);
