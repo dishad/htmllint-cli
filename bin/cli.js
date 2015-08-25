@@ -162,7 +162,6 @@ app.launch({
             return globPromise(pattern, { cwd: cwd });
         })
     ).then(function () {
-      
         return Promise.settle(
             allFilesArr.map(lintFile)
         );
