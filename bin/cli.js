@@ -42,12 +42,12 @@ var args = argv._,
 
 function getAllFiles(arrTargets) {
     var arrAllFiles = [];
-    if(arrTargets.length > 0){
-        for(var i = 0, l = arrTargets.length; i < l; i++){
+    if (arrTargets.length > 0) {
+        for (var i = 0, l = arrTargets.length; i < l; i++) {
             getFiles(arrTargets[i], arrAllFiles);
         }
     }
-    else{
+    else {
         getFiles(process.cwd(), arrAllFiles);
     }
     return arrAllFiles;
