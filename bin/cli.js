@@ -40,10 +40,10 @@ var argv = require('yargs')
 var args = argv._,
     allFilesArr = getAllFiles(args);
 
-function getAllFiles(arrTargets){
+function getAllFiles(arrTargets) {
     var arrAllFiles = [];
     if(arrTargets.length > 0){
-        for(var i=0,l=arrTargets.length;i<l;i++){
+        for(var i = 0, l = arrTargets.length; i < l; i++){
             getFiles(arrTargets[i], arrAllFiles);
         }
     }
@@ -53,17 +53,17 @@ function getAllFiles(arrTargets){
     return arrAllFiles;
 }
 
-function getFiles(filepath, arrFiles){
-    if(fs.existsSync(filepath) === false){
+function getFiles(filepath, arrFiles) {
+    if (fs.existsSync(filepath) === false) {
         return;
     }
     filepath = path.resolve(process.cwd(), filepath);
     var stat = fs.statSync(filepath);
-    if(stat.isFile() && /\.html?$/i.test(filepath)){
+    if (stat.isFile() && /\.html?$/i.test(filepath)) {
         arrFiles.push(filepath);
     }
-    else if(stat.isDirectory()){
-        fs.readdirSync(filepath).forEach(function(filename){
+    else if (stat.isDirectory()) {
+        fs.readdirSync(filepath).forEach(function(filename) {
             getFiles(filepath + '/' + filename, arrFiles);
         });
     }
